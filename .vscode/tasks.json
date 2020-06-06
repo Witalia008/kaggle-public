@@ -1,0 +1,26 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "pip install requirements",
+            "type": "shell",
+            "command": "${config:python.pythonPath}/bin/python -m pip install -r ${workspaceFolder}/requirements.txt",
+            "windows": {
+                "command": "${config:python.pythonPath}/Scripts/python -m pip install -r ${workspaceFolder}/requirements.txt"
+            },
+            "problemMatcher": [],
+            "dependsOn": "pip upgrade"
+        },
+        {
+            "label": "pip upgrade",
+            "type": "shell",
+            "command": "${config:python.pythonPath}/bin/python -m pip install --upgrade pip",
+            "windows": {
+                "command": "${config:python.pythonPath}/Scripts/python -m pip install --upgrade pip"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

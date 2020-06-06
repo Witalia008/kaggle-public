@@ -1,0 +1,33 @@
+{
+    "python.pythonPath": "/opt/conda/bin/python",
+    "python.dataScience.notebookFileRoot": "${workspaceFolder}",
+    "python.dataScience.useNotebookEditor": true,
+    "python.dataScience.allowImportFromNotebook": true,
+    // Python formatting.
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--line-length",
+        "120"
+    ],
+    // Python linting.
+    "python.linting.flake8Enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.enabled": true,
+    "python.linting.flake8Args": [
+        "--max-line-length=120"
+    ],
+    // Editor.
+    "editor.renderWhitespace": "all",
+    "editor.tabSize": 4,
+    "editor.formatOnSave": true,
+    "[markdown]": {
+        "editor.wordWrap": "on",
+        "editor.quickSuggestions": false,
+        "editor.tabSize": 2
+    },
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "files.insertFinalNewline": true,
+    // Additional extensions settings
+    "todohighlight.keywordsPattern": "(TODO|FIXME)"
+}

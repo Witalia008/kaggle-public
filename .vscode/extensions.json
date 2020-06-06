@@ -1,0 +1,14 @@
+{
+    "recommendations": [
+        // Languages
+        "ms-python.python",
+        // Editing/dev process
+        "streetsidesoftware.code-spell-checker",
+        "wayou.vscode-todo-highlight",
+        "janisdd.vscode-edit-csv",
+        "davidanson.vscode-markdownlint",
+        // VCS helpers
+        "donjayamanne.githistory",
+        "eamodio.gitlens",
+    ]
+}

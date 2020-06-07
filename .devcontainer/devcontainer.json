@@ -26,6 +26,7 @@
         "KAGGLE_MODE": "DEV",
         "PYTHONHASHSEED": "0"
     },
+    "postCreateCommand": "./.devcontainer/setup.sh",
     "devPort": 8888,
     "shutdownAction": "none"
 }

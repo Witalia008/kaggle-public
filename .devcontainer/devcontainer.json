@@ -3,9 +3,7 @@
     "image": "gcr.io/kaggle-images/python",
     "mounts": [
         "type=bind,source=${localWorkspaceFolder}/data/input,target=/kaggle/input,readonly",
-        "type=bind,source=${localWorkspaceFolder}/data/results,target=/kaggle/results",
-        "type=bind,source=${localWorkspaceFolder}/data/tmp,target=/kaggle/tmp",
-        "type=bind,source=${localWorkspaceFolder}/data/working,target=/kaggle/working"
+        "type=bind,source=${localWorkspaceFolder}/data/results,target=/kaggle/results"
     ],
     "extensions": [
         "ms-python.python",
@@ -26,6 +24,7 @@
         "KAGGLE_MODE": "DEV",
         "PYTHONHASHSEED": "0"
     },
+    "postCreateCommand": ".devcontainer/setup.sh",
     "devPort": 8888,
     "shutdownAction": "none"
 }

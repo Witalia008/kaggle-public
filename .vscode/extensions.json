@@ -7,6 +7,7 @@
         "wayou.vscode-todo-highlight",
         "janisdd.vscode-edit-csv",
         "davidanson.vscode-markdownlint",
+        "ms-vscode-remote.vscode-remote-extensionpack",
         // VCS helpers
         "donjayamanne.githistory",
         "eamodio.gitlens",

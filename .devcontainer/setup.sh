@@ -9,3 +9,5 @@ fi
 
 mkdir /kaggle/tmp
 mkdir /kaggle/working
+
+pip install --upgrade comet_ml

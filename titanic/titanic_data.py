@@ -14,7 +14,7 @@ class GroupbyMeanImputer(TransformerMixin):
         return self
 
     def transform(self, X):
-        return self._get_grouped(X).transform(lambda x: x.fillna(self.group_mean[x.name])).to_frame()
+        return self._get_grouped(X).transform(lambda x: x.fillna(self.group_mean[x.name])).to_numpy().reshape(-1, 1)
 
     def _get_grouped(self, X):
         return X.groupby(self.group_by_labels)[self.target_label]
@@ -70,7 +70,16 @@ def get_data_preprocessor():
     )
 
     fare_transformer = Pipeline(
-        steps=[("imputer", SimpleImputer(strategy="mean")), ("log", FunctionTransformer(np.log1p))]
+        steps=[
+            ("imputer", SimpleImputer(strategy="mean")),
+            (
+                "bin",
+                FunctionTransformer(
+                    lambda df: pd.cut(df[:, 0], bins=[-1, 15, 30, 50, 70, 100, 600], labels=False).reshape(-1, 1) + 1
+                ),
+            )
+            # ("log", FunctionTransformer(np.log1p))
+        ]
     )
 
     family_transformer = FunctionTransformer(lambda df: df.sum(axis=1).to_frame())
@@ -82,7 +91,9 @@ def get_data_preprocessor():
             ("imputer", GroupbyMeanImputer(group_by_labels="Pclass Sex".split(), target_label="Age")),
             (
                 "bin",
-                FunctionTransformer(lambda df: pd.cut(df.Age, bins=[0, 16, 30, 50, 80], labels=False).to_frame() + 1),
+                FunctionTransformer(
+                    lambda df: pd.cut(df[:, 0], bins=[0, 16, 30, 50, 80], labels=False).reshape(-1, 1) + 1
+                ),
             ),
         ]
     )

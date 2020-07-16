@@ -114,3 +114,9 @@ venv.bak/
 
 data/working
 data/tmp
+
+##
+## Comet.ml ignores.
+##
+
+.comet.config

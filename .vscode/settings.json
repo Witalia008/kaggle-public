@@ -3,6 +3,7 @@
     "python.dataScience.notebookFileRoot": "${workspaceFolder}",
     "python.dataScience.useNotebookEditor": true,
     "python.dataScience.allowImportFromNotebook": true,
+    "python.dataScience.textOutputLimit": 0,
     // Python formatting.
     "python.formatting.provider": "black",
     "python.formatting.blackArgs": [

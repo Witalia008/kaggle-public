@@ -38,12 +38,12 @@ def split_data(X, y, test_size, random_state):
     return train_test_split(X, y, test_size=test_size, random_state=random_state)
 
 
-def get_data_preprocessor():
+def get_data_preprocessor(standardize=True):
     from sklearn.compose import ColumnTransformer
 
     from sklearn.pipeline import Pipeline
     from sklearn.impute import SimpleImputer
-    from sklearn.preprocessing import OneHotEncoder, FunctionTransformer
+    from sklearn.preprocessing import OneHotEncoder, FunctionTransformer, StandardScaler
 
     import re
 
@@ -70,16 +70,7 @@ def get_data_preprocessor():
     )
 
     fare_transformer = Pipeline(
-        steps=[
-            ("imputer", SimpleImputer(strategy="mean")),
-            (
-                "bin",
-                FunctionTransformer(
-                    lambda df: pd.cut(df[:, 0], bins=[-1, 15, 30, 50, 70, 100, 600], labels=False).reshape(-1, 1) + 1
-                ),
-            )
-            # ("log", FunctionTransformer(np.log1p))
-        ]
+        steps=[("imputer", SimpleImputer(strategy="mean")), ("log", FunctionTransformer(np.log1p))]
     )
 
     family_transformer = FunctionTransformer(lambda df: df.sum(axis=1).to_frame())
@@ -109,6 +100,9 @@ def get_data_preprocessor():
             ("age", age_transformer, ["Age", "Pclass", "Sex"]),
         ]
     )
+
+    if standardize:
+        preprocessor = Pipeline(steps=[("transform", preprocessor), ("standardize", StandardScaler())])
 
     preprocessed_column_names = (
         ["Pclass"]

@@ -115,3 +115,13 @@ def get_data_preprocessor(standardize=True):
     )
 
     return preprocessor, preprocessed_column_names
+
+
+def get_class_weights(y_train):
+    died_cnt, survived_cnt = np.bincount(y_train)
+    total_cnt = died_cnt + survived_cnt
+
+    weight_died = total_cnt / died_cnt / 2
+    weight_survived = total_cnt / survived_cnt / 2
+
+    return {0: weight_died, 1: weight_survived}

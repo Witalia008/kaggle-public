@@ -15,7 +15,8 @@
     "python.linting.pylintEnabled": false,
     "python.linting.enabled": true,
     "python.linting.flake8Args": [
-        "--max-line-length=120"
+        "--max-line-length=120",
+        "--ignore=E402"
     ],
     // Editor.
     "editor.renderWhitespace": "all",

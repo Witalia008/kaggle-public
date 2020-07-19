@@ -70,7 +70,15 @@ def get_data_preprocessor(standardize=True):
     )
 
     fare_transformer = Pipeline(
-        steps=[("imputer", SimpleImputer(strategy="mean")), ("log", FunctionTransformer(np.log1p))]
+        steps=[
+            ("imputer", SimpleImputer(strategy="mean")),
+            (
+                "bin",
+                FunctionTransformer(
+                    lambda df: pd.cut(df[:, 0], bins=[-1, 15, 30, 50, 70, 100, 600], labels=False).reshape(-1, 1) + 1
+                ),
+            ),
+        ]
     )
 
     family_transformer = FunctionTransformer(lambda df: df.sum(axis=1).to_frame())

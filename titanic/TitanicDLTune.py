@@ -110,7 +110,7 @@ class TitanicHyperModel(kt.HyperModel):
         for layer_n in range(hp.Int("num_layers", min_value=2, max_value=7, step=1, default=3)):
             units = hp.Int(f"dense_units_{layer_n}", min_value=8, max_value=64, step=8, default=64)
             activation = hp.Choice(f"dense_activation_{layer_n}", values=["relu", "tanh"], default="relu")
-            regularizer_l1 = hp.Choice(f"l1_{layer_n}", values=[0.01, 0.001, 1e-4, 1e-5, 0.0], default=1e-2)
+            regularizer_l1 = hp.Choice(f"l1_{layer_n}", values=[0.01, 0.001, 0.0], default=1e-2)
             regularizer_l2 = hp.Choice(f"l2_{layer_n}", values=[0.1, 0.01, 0.001], default=1e-2)
             initializer = "he_uniform" if activation == "relu" else "glorot_uniform"
 
@@ -130,7 +130,7 @@ class TitanicHyperModel(kt.HyperModel):
 
         model.add(Dense(1, activation="sigmoid"))
 
-        learning_rate = hp.Choice("learning_rate", values=[1e-2, 1e-3], default=1e-3)  # , 5e-4, 1e-4],
+        learning_rate = hp.Choice("learning_rate", values=[1e-2, 1e-3, 1e-4, 1e-5], default=1e-3)
 
         optimizer = hp.Choice("optimizer", values=["adam", "RMSprop"], default="adam")
         optimizer_type = {
@@ -183,7 +183,7 @@ DEVMODE = False
 if DEVMODE:
     MAX_TRIALS = 5
 else:
-    MAX_TRIALS = 50
+    MAX_TRIALS = 500
 
 
 # %%

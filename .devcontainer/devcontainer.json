@@ -20,9 +20,8 @@
         "terminal.integrated.shell.linux": "/bin/bash",
         "python.pythonPath": "/opt/conda/bin/python"
     },
-    "remoteEnv": {
-        "KAGGLE_MODE": "DEV",
-        "PYTHONHASHSEED": "0"
+    "containerEnv": {
+        "KAGGLE_MODE": "DEV"
     },
     "postCreateCommand": ".devcontainer/setup.sh",
     "devPort": 8888,

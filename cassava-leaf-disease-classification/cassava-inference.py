@@ -14,7 +14,7 @@ print(f"DEV MODE: {DEVMODE}")
 INPUT_FOLDER = "/kaggle/input/cassava-leaf-disease-classification/"
 WORK_DIR = "/kaggle/working"
 
-IMAGE_SIZE = (224, 224)
+IMAGE_SIZE = (512, 512)
 
 
 def _parse_tfrecord(example_proto):
@@ -85,7 +85,7 @@ def run_predictions(model):
         image = tf.keras.preprocessing.image.load_img(os.path.join(test_dir, image_name), target_size=IMAGE_SIZE)
         image = tf.keras.preprocessing.image.img_to_array(image)
         image = np.expand_dims(image, axis=0)
-        image = image / 255.0
+        image = tf.keras.applications.inception_v3.preprocess_input(image)
 
         cur_prediction = model.predict(image)
 
@@ -97,7 +97,7 @@ def run_predictions(model):
 
 if __name__ == "__main__":
     model_location = WORK_DIR if DEVMODE else "/kaggle/input/cassava-clean"
-    model = load_model(os.path.join(model_location, "cassava.h5"))
+    model = load_model(os.path.join(model_location, "cassava_best.h5"))
 
     # test_dataset, test_image_names = get_test_dataset()
     # test_dataset, test_image_names = get_test_generator()

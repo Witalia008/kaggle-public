@@ -8,7 +8,8 @@ import pandas as pd
 import tensorflow as tf
 from keras_preprocessing.image import ImageDataGenerator
 from tensorflow.data.experimental import AUTOTUNE
-from tensorflow.keras.layers import Conv2D, Dense, Dropout, Flatten, Input, MaxPooling2D
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
+from tensorflow.keras.layers import Conv2D, Dense, Dropout, Flatten, Input, MaxPooling2D, GlobalAveragePooling2D
 from tensorflow.keras.models import Sequential
 
 print(tf.__version__)
@@ -22,13 +23,12 @@ WORK_DIR = "/kaggle/working"
 SEED = hash("cassava-leaf-disease-classification") % 100
 
 DATASET_SIZE = 21367
-VALID_DATASET_RATIO = 0.2
+VALID_DATASET_RATIO = 0.05
 BATCH_SIZE = 16
-IMAGE_SIZE = (224, 224)
+IMAGE_SIZE = (512, 512)
+N_CLASSES = 5
 
-EPOCHS = 1 if DEVMODE else 10
-STEPS = 30 if DEVMODE else None  # int(DATASET_SIZE * (1 - VALID_DATASET_RATIO) / BATCH_SIZE * 1.5)
-VALID_STEPS = 10 if DEVMODE else None  # None - use all data for validation
+EPOCHS = 1 if DEVMODE else 17
 
 
 def seed_everything(seed=SEED):
@@ -44,6 +44,7 @@ def get_disease_map():
         disease_map: dict = json.load(f)
 
     disease_map = {int(disease_id): disease_name for (disease_id, disease_name) in disease_map.items()}
+    assert len(disease_map) == N_CLASSES
 
     print(disease_map)
     return disease_map
@@ -88,7 +89,8 @@ def get_train_val_generators():
     print(train_data.head())
 
     train_datagen = ImageDataGenerator(
-        rescale=1 / 255.0,
+        # rescale=1 / 255.0,
+        preprocessing_function=tf.keras.applications.inception_v3.preprocess_input,
         validation_split=VALID_DATASET_RATIO,
         rotation_range=45,
         width_shift_range=0.2,
@@ -128,7 +130,7 @@ def get_train_val_generators():
     return train_dataset, valid_dataset
 
 
-def build_model():
+def create_model():
     model = Sequential(
         [
             Input(shape=IMAGE_SIZE + (3,)),
@@ -141,34 +143,67 @@ def build_model():
             Flatten(),
             Dense(1024, activation="relu"),
             Dropout(0.2),
-            Dense(5, activation="softmax"),
+            Dense(N_CLASSES, activation="softmax"),
         ]
     )
 
+    return model
+
+
+def build_model(model):
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
 
     metrics = [tf.keras.metrics.SparseCategoricalAccuracy(name="accuracy")]
 
     model.compile(loss="sparse_categorical_crossentropy", optimizer=optimizer, metrics=metrics)
 
-    print(model.summary())
+    return model
+
+
+def create_inceptionv3():
+    backbone = tf.keras.applications.InceptionV3(include_top=False, weights="imagenet", input_shape=IMAGE_SIZE + (3,))
+
+    # Freeze the pre-trained backbone model.
+    # for layer in backbone.layers:
+    #     layer.trainable = False
+
+    model = Sequential(
+        [
+            backbone,
+            GlobalAveragePooling2D(),
+            Dense(256, activation="relu"),
+            Dropout(0.2),
+            Dense(N_CLASSES, activation="softmax"),
+        ]
+    )
 
     return model
 
 
 def train_model(model: tf.keras.models.Model, train_dataset, valid_dataset):
-    history = model.fit(
+    steps = 30 if DEVMODE else (train_dataset.n // train_dataset.batch_size)
+    valid_steps = 10 if DEVMODE else (valid_dataset.n // valid_dataset.batch_size)
+
+    early_stopping_cb = EarlyStopping(monitor="val_loss", patience=3, restore_best_weights=True, verbose=1)
+    checkpoint_cb = ModelCheckpoint(os.path.join(WORK_DIR, "cassava_best.h5"), monitor="val_loss", save_best_only=True)
+    reduce_lr_on_plateau_cb = ReduceLROnPlateau(monitor="val_loss", factor=0.2, patience=2, min_lr=1e-6, verbose=1)
+
+    results = model.fit(
         train_dataset,
         epochs=EPOCHS,
-        steps_per_epoch=STEPS,
+        steps_per_epoch=steps,
         validation_data=valid_dataset,
-        validation_steps=VALID_STEPS,
+        validation_steps=valid_steps,
         shuffle=False,  # Datasets are already shuffled
+        callbacks=[early_stopping_cb, checkpoint_cb, reduce_lr_on_plateau_cb],
     )
+
+    print(f"Train accuracy: {results.history['accuracy']}")
+    print(f"Validation accuracy: {results.history['val_accuracy']}")
 
     model.save(os.path.join(WORK_DIR, "cassava.h5"))
 
-    return history
+    return results
 
 
 if __name__ == "__main__":
@@ -176,9 +211,12 @@ if __name__ == "__main__":
 
     disease_map = get_disease_map()
 
-    model = build_model()
+    model = create_inceptionv3()
+    print(model.summary())
+
+    model = build_model(model)
 
     # train_dataset, valid_dataset = get_train_val_datasets()
     train_dataset, valid_dataset = get_train_val_generators()
 
-    history = train_model(model, train_dataset, valid_dataset)
+    results = train_model(model, train_dataset, valid_dataset)

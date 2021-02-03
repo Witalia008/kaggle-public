@@ -28,7 +28,7 @@ BATCH_SIZE = 16
 IMAGE_SIZE = (512, 512)
 N_CLASSES = 5
 
-EPOCHS = 1 if DEVMODE else 17
+EPOCHS = 2 if DEVMODE else 17
 
 
 def seed_everything(seed=SEED):
@@ -134,14 +134,14 @@ def create_model():
     model = Sequential(
         [
             Input(shape=IMAGE_SIZE + (3,)),
-            Conv2D(filters=32, kernel_size=5, activation="relu"),
-            MaxPooling2D((3, 3)),
-            Conv2D(64, 5, activation="relu"),
-            MaxPooling2D((3, 3)),
-            Conv2D(128, 5, activation="relu"),
-            MaxPooling2D((3, 3)),
+            Conv2D(filters=32, kernel_size=7, activation="relu"),
+            MaxPooling2D((4, 4)),
+            Conv2D(64, 7, activation="relu"),
+            MaxPooling2D((4, 4)),
+            Conv2D(128, 7, activation="relu"),
+            MaxPooling2D((4, 4)),
             Flatten(),
-            Dense(1024, activation="relu"),
+            Dense(256, activation="relu"),
             Dropout(0.2),
             Dense(N_CLASSES, activation="softmax"),
         ]
@@ -181,8 +181,8 @@ def create_inceptionv3():
 
 
 def train_model(model: tf.keras.models.Model, train_dataset, valid_dataset):
-    steps = 30 if DEVMODE else (train_dataset.n // train_dataset.batch_size)
-    valid_steps = 10 if DEVMODE else (valid_dataset.n // valid_dataset.batch_size)
+    steps = 10 if DEVMODE else (train_dataset.n // train_dataset.batch_size)
+    valid_steps = 5 if DEVMODE else (valid_dataset.n // valid_dataset.batch_size)
 
     early_stopping_cb = EarlyStopping(monitor="val_loss", patience=3, restore_best_weights=True, verbose=1)
     checkpoint_cb = ModelCheckpoint(os.path.join(WORK_DIR, "cassava_best.h5"), monitor="val_loss", save_best_only=True)
@@ -206,10 +206,8 @@ def train_model(model: tf.keras.models.Model, train_dataset, valid_dataset):
     return results
 
 
-if __name__ == "__main__":
+def main():
     seed_everything()
-
-    disease_map = get_disease_map()
 
     model = create_inceptionv3()
     print(model.summary())
@@ -220,3 +218,9 @@ if __name__ == "__main__":
     train_dataset, valid_dataset = get_train_val_generators()
 
     results = train_model(model, train_dataset, valid_dataset)
+
+    return results, valid_dataset
+
+
+if __name__ == "__main__":
+    main()

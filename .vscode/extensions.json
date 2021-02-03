@@ -2,6 +2,7 @@
     "recommendations": [
         // Languages
         "ms-python.python",
+        "ms-python.vscode-pylance",
         // Editing/dev process
         "streetsidesoftware.code-spell-checker",
         "wayou.vscode-todo-highlight",

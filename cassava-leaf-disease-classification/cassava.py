@@ -2,20 +2,26 @@
 import json
 import os
 import random
+import shutil
 
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+import tensorflow.keras.backend as K
 from keras_preprocessing.image import ImageDataGenerator
 from tensorflow.data.experimental import AUTOTUNE
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
-from tensorflow.keras.layers import Conv2D, Dense, Dropout, Flatten, Input, MaxPooling2D, GlobalAveragePooling2D
+from tensorflow.keras.layers import Conv2D, Dense, Dropout, Flatten, GlobalAveragePooling2D, Input, MaxPooling2D
 from tensorflow.keras.models import Sequential
 
 print(tf.__version__)
 
 DEVMODE = os.getenv("KAGGLE_MODE") == "DEV"
 print(f"DEV MODE: {DEVMODE}")
+
+if not DEVMODE:
+    shutil.copyfile("/kaggle/input/googlebitemperedloss/bi_tempered_loss.py", "bi_tempered_loss.py")
+from bi_tempered_loss import bi_tempered_logistic_loss
 
 INPUT_FOLDER = "/kaggle/input/cassava-leaf-disease-classification/"
 WORK_DIR = "/kaggle/working"
@@ -29,6 +35,9 @@ IMAGE_SIZE = (512, 512)
 N_CLASSES = 5
 
 EPOCHS = 2 if DEVMODE else 17
+
+T1 = 0.2
+T2 = 1.2
 
 
 def seed_everything(seed=SEED):
@@ -153,9 +162,14 @@ def create_model():
 def build_model(model):
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
 
+    def bi_tempered_loss(y_true, y_pred):
+        y_true = K.cast(K.reshape(y_true, (-1,)), "int64")
+        labels = K.one_hot(y_true, N_CLASSES)
+        return bi_tempered_logistic_loss(y_pred, labels, T1, T2, label_smoothing=0.2)
+
     metrics = [tf.keras.metrics.SparseCategoricalAccuracy(name="accuracy")]
 
-    model.compile(loss="sparse_categorical_crossentropy", optimizer=optimizer, metrics=metrics)
+    model.compile(loss=bi_tempered_loss, optimizer=optimizer, metrics=metrics)
 
     return model
 
@@ -173,7 +187,7 @@ def create_inceptionv3():
             GlobalAveragePooling2D(),
             Dense(256, activation="relu"),
             Dropout(0.2),
-            Dense(N_CLASSES, activation="softmax"),
+            Dense(N_CLASSES, activation=None),  # Softmax is embedded in bi-tempered loss.
         ]
     )
 

@@ -1,12 +1,13 @@
 import os
 import shutil
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 import tensorflow as tf
-from tensorflow.keras.models import load_model
-from tensorflow.data.experimental import AUTOTUNE
 from keras_preprocessing.image import ImageDataGenerator
+from tensorflow.data.experimental import AUTOTUNE
+from tensorflow.keras.losses import sparse_categorical_crossentropy
+from tensorflow.keras.models import load_model
 
 DEVMODE = os.getenv("KAGGLE_MODE") == "DEV"
 print(f"DEV MODE: {DEVMODE}")
@@ -96,8 +97,13 @@ def run_predictions(model):
 
 
 if __name__ == "__main__":
-    model_location = WORK_DIR if DEVMODE else "/kaggle/input/cassava-clean"
-    model = load_model(os.path.join(model_location, "cassava_best.h5"))
+    model_location = "/kaggle/input/cassava-model"
+    model = load_model(
+        os.path.join(model_location, "cassava_best_tempered.h5"),
+        custom_objects={
+            "bi_tempered_loss": sparse_categorical_crossentropy
+        },  # Loss is not used for inference, so assign to whatever.
+    )
 
     # test_dataset, test_image_names = get_test_dataset()
     # test_dataset, test_image_names = get_test_generator()

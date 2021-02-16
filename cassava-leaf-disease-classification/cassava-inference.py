@@ -2,6 +2,7 @@ import gc
 import os
 import shutil
 
+import cv2
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -9,9 +10,9 @@ from keras_preprocessing.image import ImageDataGenerator
 from tensorflow.data.experimental import AUTOTUNE
 from tensorflow.keras import Model
 from tensorflow.keras.applications.inception_v3 import preprocess_input
+from tensorflow.keras.layers import Average, Input
 from tensorflow.keras.losses import sparse_categorical_crossentropy
 from tensorflow.keras.models import load_model
-import cv2
 
 DEVMODE = os.getenv("KAGGLE_MODE") == "DEV"
 print(f"DEV MODE: {DEVMODE}")
@@ -21,7 +22,7 @@ WORK_DIR = "/kaggle/working"
 
 IMAGE_SIZE = (512, 512)
 
-N_FOLD = 10
+N_FOLD = 3
 
 
 def _parse_tfrecord(example_proto):
@@ -124,14 +125,39 @@ def run_predictions(model: Model):
     return predictions, test_image_names
 
 
+def define_ensemble_model(models):
+    # Wrap each model so that names are different and do not collide.
+    models = [
+        Model(inputs=model.input, outputs=model.output, name=f"{model.name}_{model_idx}")
+        for model_idx, model in enumerate(models)
+    ]
+
+    input = Input(IMAGE_SIZE + (3,))
+
+    ensemble_outputs = [model(input) for model in models]
+
+    avg = Average()(ensemble_outputs)
+
+    model = Model(inputs=input, outputs=avg)
+
+    return model
+
+
 if __name__ == "__main__":
-    model_location = "/kaggle/input/cassava-model"
-    model = load_model(
-        os.path.join(model_location, "cassava_best_tempered.h5"),
-        custom_objects={
-            "bi_tempered_loss": sparse_categorical_crossentropy
-        },  # Loss is not used for inference, so assign to whatever.
-    )
+    models_location = "/kaggle/input/cassava-model"
+    models_info = ["cassava_best.h5", "cassava_best_tempered.h5", "cassava_best_tempered_2.h5"]
+
+    models = [
+        load_model(
+            os.path.join(models_location, model_name),
+            custom_objects={
+                "bi_tempered_loss": sparse_categorical_crossentropy
+            },  # Loss is not used for inference, so assign to whatever.
+        )
+        for model_name in models_info
+    ]
+
+    model = define_ensemble_model(models)
     print(model.summary())
 
     # test_dataset, test_image_names = get_test_dataset()

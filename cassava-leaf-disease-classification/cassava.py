@@ -9,10 +9,10 @@ import pandas as pd
 import tensorflow as tf
 import tensorflow.keras.backend as K
 from keras_preprocessing.image import ImageDataGenerator
-from tensorflow.data.experimental import AUTOTUNE
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
-from tensorflow.keras.layers import Conv2D, Dense, Dropout, Flatten, GlobalAveragePooling2D, Input, MaxPooling2D
+from tensorflow.keras.layers import Dense, Dropout, GlobalAveragePooling2D
 from tensorflow.keras.models import Sequential
+from tensorflow_addons.callbacks import TimeStopping
 
 print(tf.__version__)
 
@@ -59,46 +59,12 @@ def get_disease_map():
     return disease_map
 
 
-def _parse_tfrecord(example_proto):
-    feature_descriptions = {
-        "image_name": tf.io.FixedLenFeature([], tf.string, default_value=""),
-        "target": tf.io.FixedLenFeature([], tf.int64, default_value=-1),
-        "image": tf.io.FixedLenFeature([], tf.string, default_value=""),
-    }
-    example = tf.io.parse_single_example(example_proto, feature_descriptions)
-
-    image = tf.io.decode_jpeg(example["image"], channels=3)
-    image = tf.image.resize(image, IMAGE_SIZE)
-    image = tf.cast(image, tf.float32) / 255.0
-
-    return image, example["target"], example["image_name"]
-
-
-def get_train_val_datasets():
-    train_files = tf.data.Dataset.list_files(os.path.join(INPUT_FOLDER, "train_tfrecords/ld_train*.tfrec"))
-
-    dataset = tf.data.TFRecordDataset(train_files, num_parallel_reads=AUTOTUNE)
-    dataset = dataset.map(_parse_tfrecord, num_parallel_calls=AUTOTUNE).map(
-        lambda x, y, _: (x, y), num_parallel_calls=AUTOTUNE
-    )
-
-    dataset = dataset.shuffle(128)
-
-    valid_dataset_size = int(DATASET_SIZE * VALID_DATASET_RATIO)
-
-    valid_dataset = dataset.take(valid_dataset_size).batch(BATCH_SIZE).prefetch(AUTOTUNE)
-    train_dataset = dataset.skip(valid_dataset_size).batch(BATCH_SIZE).prefetch(AUTOTUNE)
-
-    return train_dataset, valid_dataset
-
-
 def get_train_val_generators():
     train_data = pd.read_csv(os.path.join(INPUT_FOLDER, "train.csv"))
     train_data.label = train_data.label.astype("str")
     print(train_data.head())
 
     train_datagen = ImageDataGenerator(
-        # rescale=1 / 255.0,
         preprocessing_function=tf.keras.applications.inception_v3.preprocess_input,
         validation_split=VALID_DATASET_RATIO,
         rotation_range=45,
@@ -139,26 +105,6 @@ def get_train_val_generators():
     return train_dataset, valid_dataset
 
 
-def create_model():
-    model = Sequential(
-        [
-            Input(shape=IMAGE_SIZE + (3,)),
-            Conv2D(filters=32, kernel_size=7, activation="relu"),
-            MaxPooling2D((4, 4)),
-            Conv2D(64, 7, activation="relu"),
-            MaxPooling2D((4, 4)),
-            Conv2D(128, 7, activation="relu"),
-            MaxPooling2D((4, 4)),
-            Flatten(),
-            Dense(256, activation="relu"),
-            Dropout(0.2),
-            Dense(N_CLASSES, activation="softmax"),
-        ]
-    )
-
-    return model
-
-
 def build_model(model):
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
 
@@ -176,10 +122,6 @@ def build_model(model):
 
 def create_inceptionv3():
     backbone = tf.keras.applications.InceptionV3(include_top=False, weights="imagenet", input_shape=IMAGE_SIZE + (3,))
-
-    # Freeze the pre-trained backbone model.
-    # for layer in backbone.layers:
-    #     layer.trainable = False
 
     model = Sequential(
         [
@@ -201,6 +143,7 @@ def train_model(model: tf.keras.models.Model, train_dataset, valid_dataset):
     early_stopping_cb = EarlyStopping(monitor="val_loss", patience=3, restore_best_weights=True, verbose=1)
     checkpoint_cb = ModelCheckpoint(os.path.join(WORK_DIR, "cassava_best.h5"), monitor="val_loss", save_best_only=True)
     reduce_lr_on_plateau_cb = ReduceLROnPlateau(monitor="val_loss", factor=0.2, patience=2, min_lr=1e-6, verbose=1)
+    time_stopping_cb = TimeStopping(seconds=int(11.5 * 60 * 60), verbose=1)
 
     results = model.fit(
         train_dataset,
@@ -209,7 +152,7 @@ def train_model(model: tf.keras.models.Model, train_dataset, valid_dataset):
         validation_data=valid_dataset,
         validation_steps=valid_steps,
         shuffle=False,  # Datasets are already shuffled
-        callbacks=[early_stopping_cb, checkpoint_cb, reduce_lr_on_plateau_cb],
+        callbacks=[early_stopping_cb, checkpoint_cb, reduce_lr_on_plateau_cb, time_stopping_cb],
     )
 
     print(f"Train accuracy: {results.history['accuracy']}")
@@ -228,7 +171,6 @@ def main():
 
     model = build_model(model)
 
-    # train_dataset, valid_dataset = get_train_val_datasets()
     train_dataset, valid_dataset = get_train_val_generators()
 
     results = train_model(model, train_dataset, valid_dataset)

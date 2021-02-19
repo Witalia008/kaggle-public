@@ -1,9 +1,5 @@
 {
     "python.pythonPath": "/opt/conda/bin/python",
-    "python.dataScience.notebookFileRoot": "${workspaceFolder}",
-    "python.dataScience.useNotebookEditor": true,
-    "python.dataScience.allowImportFromNotebook": true,
-    "python.dataScience.textOutputLimit": 0,
     // Python formatting.
     "python.formatting.provider": "black",
     "python.formatting.blackArgs": [
@@ -31,5 +27,9 @@
     "editor.detectIndentation": false,
     "files.insertFinalNewline": true,
     // Additional extensions settings
-    "todohighlight.keywordsPattern": "(TODO|FIXME)"
+    "todohighlight.keywordsPattern": "(TODO|FIXME)",
+    "jupyter.notebookFileRoot": "${workspaceFolder}",
+    "jupyter.useNotebookEditor": true,
+    "jupyter.allowImportFromNotebook": true,
+    "jupyter.textOutputLimit": 0
 }

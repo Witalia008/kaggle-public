@@ -9,8 +9,8 @@ def score_model(model, X, y):
     return score
 
 
-def score_cross_val(model, X, y):
-    scores = cross_val_score(model, X, y, cv=5, scoring="accuracy")
+def score_cross_val(model, X, y, fit_params=None):
+    scores = cross_val_score(model, X, y, cv=5, scoring="accuracy", fit_params=fit_params)
 
     print("Scores:", scores)
     score = scores.mean()

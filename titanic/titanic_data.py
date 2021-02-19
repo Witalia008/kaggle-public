@@ -14,7 +14,7 @@ class GroupbyMeanImputer(TransformerMixin):
         return self
 
     def transform(self, X):
-        return self._get_grouped(X).transform(lambda x: x.fillna(self.group_mean[x.name])).to_frame()
+        return self._get_grouped(X).transform(lambda x: x.fillna(self.group_mean[x.name])).to_numpy().reshape(-1, 1)
 
     def _get_grouped(self, X):
         return X.groupby(self.group_by_labels)[self.target_label]
@@ -38,12 +38,12 @@ def split_data(X, y, test_size, random_state):
     return train_test_split(X, y, test_size=test_size, random_state=random_state)
 
 
-def get_data_preprocessor():
+def get_data_preprocessor(standardize=True):
     from sklearn.compose import ColumnTransformer
 
     from sklearn.pipeline import Pipeline
     from sklearn.impute import SimpleImputer
-    from sklearn.preprocessing import OneHotEncoder, FunctionTransformer
+    from sklearn.preprocessing import OneHotEncoder, FunctionTransformer, StandardScaler
 
     import re
 
@@ -70,7 +70,15 @@ def get_data_preprocessor():
     )
 
     fare_transformer = Pipeline(
-        steps=[("imputer", SimpleImputer(strategy="mean")), ("log", FunctionTransformer(np.log1p))]
+        steps=[
+            ("imputer", SimpleImputer(strategy="mean")),
+            (
+                "bin",
+                FunctionTransformer(
+                    lambda df: pd.cut(df[:, 0], bins=[-1, 15, 30, 50, 70, 100, 600], labels=False).reshape(-1, 1) + 1
+                ),
+            ),
+        ]
     )
 
     family_transformer = FunctionTransformer(lambda df: df.sum(axis=1).to_frame())
@@ -82,7 +90,9 @@ def get_data_preprocessor():
             ("imputer", GroupbyMeanImputer(group_by_labels="Pclass Sex".split(), target_label="Age")),
             (
                 "bin",
-                FunctionTransformer(lambda df: pd.cut(df.Age, bins=[0, 16, 30, 50, 80], labels=False).to_frame() + 1),
+                FunctionTransformer(
+                    lambda df: pd.cut(df[:, 0], bins=[0, 16, 30, 50, 80], labels=False).reshape(-1, 1) + 1
+                ),
             ),
         ]
     )
@@ -99,6 +109,9 @@ def get_data_preprocessor():
         ]
     )
 
+    if standardize:
+        preprocessor = Pipeline(steps=[("transform", preprocessor), ("standardize", StandardScaler())])
+
     preprocessed_column_names = (
         ["Pclass"]
         + sorted("Female Male".split())
@@ -110,3 +123,13 @@ def get_data_preprocessor():
     )
 
     return preprocessor, preprocessed_column_names
+
+
+def get_class_weights(y_train):
+    died_cnt, survived_cnt = np.bincount(y_train)
+    total_cnt = died_cnt + survived_cnt
+
+    weight_died = total_cnt / died_cnt / 2
+    weight_survived = total_cnt / survived_cnt / 2
+
+    return {0: weight_died, 1: weight_survived}

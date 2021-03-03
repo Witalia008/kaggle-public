@@ -1,0 +1,26 @@
+DICOM Tag,Attribute Name,Description
+"(0010, 0040)",Patient's Sex,Sex of the named patient.
+"(0010, 1010)",Patient's Age,Age of the patient.
+"(0010, 1020)",Patient's Size,"Length or size of the patient, in meters."
+"(0010, 1030)",Patient's Weight,"Weight of the patient, in kilograms."
+"(0028, 0010)",Rows,Number of rows in the image.
+"(0028, 0011)",Columns,Number of columns in the image.
+"(0028, 0030)",Pixel Spacing,"Physical distance in the patient between the center of each pixel, specified by a numeric pair - adjacent row spacing (delimiter) adjacent column spacing in mm."
+"(0028, 0034)",Pixel Aspect Ratio,"Ratio of the vertical size and horizontal size of the pixels in the image specified by a pair of integer values where the first value is the vertical pixel size, and the second value is the horizontal pixel size."
+"(0028, 0100)",Bits Allocated,Number of bits allocated for each pixel sample. Each sample shall have the same number of bits allocated.
+"(0028, 0101)",Bits Stored,Number of bits stored for each pixel sample. Each sample shall have the same number of bits stored.
+"(0028, 0102)",High Bit,Most significant bit for pixel sample data. Each sample shall have the same high bit.
+"(0028, 0103)",Pixel Representation,Data representation of the pixel samples. Each sample shall have the same pixel representation.
+"(0028, 0106)",Smallest Image Pixel Value,The minimum actual pixel value encountered in this image.
+"(0028, 0107)",Largest Image Pixel Value,The maximum actual pixel value encountered in this image.
+"(0028, 1050)",Window Center,Window center for display.
+"(0028, 1051)",Window Width,Window width for display.
+"(0028, 1052)",Rescale Intercept,"The value b in relationship between stored values (SV) and the output units specified in Rescale Type (0028,1054). Each output unit is equal to m*SV + b."
+"(0028, 1053)",Rescale Slope,"Value of m in the equation specified by Rescale Intercept (0028,1052)."
+"(7FE0, 0010)",Pixel Data,A data stream of the pixel samples that comprise the image.
+"(0028, 0004)",Photometric Interpretation,Specifies the intended interpretation of the pixel data.
+"(0028, 2110)",Lossy Image Compression,Specifies whether an image has undergone lossy compression (at a point in its lifetime).
+"(0028, 2114)",Lossy Image Compression Method,A label for the lossy compression method(s) that have been applied to this image.
+"(0028, 2112)",Image Compression Ratio,Describes the approximate lossy compression ratio(s) that have been applied to this image.
+"(0028, 0002)",Samples per Pixel,Number of samples (planes) in this image.
+"(0028, 0008)",Number of Frames,Number of frames in a multi-frame image.

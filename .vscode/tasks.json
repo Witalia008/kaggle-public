@@ -21,6 +21,25 @@
                 "command": "${config:python.pythonPath}/Scripts/python -m pip install --upgrade pip"
             },
             "problemMatcher": []
+        },
+        {
+            "label": "kaggle dataset version",
+            "type": "shell",
+            "command": "kaggle datasets version -m 'Updated data'",
+            "options": {
+                "cwd": "${workspaceFolder}/${input:projectFolder}"
+            },
+            "problemMatcher": []
+        }
+    ],
+    "inputs": [
+        {
+            "id": "projectFolder",
+            "type": "pickString",
+            "description": "Select directory with a project",
+            "options": [
+                "vinbigdata-chest-xray-abnormalities-detection"
+            ]
         }
     ]
 }

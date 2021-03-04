@@ -123,3 +123,7 @@ data/tmp
 
 
 data/
+
+
+# Kaggle API key
+kaggle.json

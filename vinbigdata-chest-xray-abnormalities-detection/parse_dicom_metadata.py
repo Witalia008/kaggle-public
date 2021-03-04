@@ -34,8 +34,7 @@ def get_dicom_tags(file_path, tags_filter=None):
 def main():
     copy_deps()
 
-    dependencies_dir = "vinbigdata-chest-xray-abnormalities-detection" if DEVMODE else DEPS_FOLDER
-    dicom_metadata_desc = pd.read_csv(os.path.join(dependencies_dir, "dicomMetadata.csv"))
+    dicom_metadata_desc = pd.read_csv("dicomMetadata.csv")
     tags_names = list(dicom_metadata_desc["Attribute Name"].values)
 
     for set_name in ["train", "test"]:

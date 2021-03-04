@@ -30,6 +30,15 @@
                 "cwd": "${workspaceFolder}/${input:projectFolder}"
             },
             "problemMatcher": []
+        },
+        {
+            "label": "kaggle dataset download",
+            "type": "shell",
+            "command": "kaggle datasets download ${input:userName}/${input:datasetName} -p ${input:datasetName} --unzip --force",
+            "options": {
+                "cwd": "/kaggle/input"
+            },
+            "problemMatcher": []
         }
     ],
     "inputs": [
@@ -40,6 +49,16 @@
             "options": [
                 "vinbigdata-chest-xray-abnormalities-detection"
             ]
+        },
+        {
+            "id": "userName",
+            "type": "promptString",
+            "description": "Enter the user name for the owner of kaggle resource"
+        },
+        {
+            "id": "datasetName",
+            "type": "promptString",
+            "description": "Enter name of dataset"
         }
     ]
 }

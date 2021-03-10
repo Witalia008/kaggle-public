@@ -1,6 +1,5 @@
 from pathlib import Path
 import shutil
-import importlib
 
 
 def is_running_in_colab(check_env=True):
@@ -14,7 +13,7 @@ def is_running_in_colab(check_env=True):
 def setup_colab_drive_for_kaggle(check_env=True):
     if not is_running_in_colab(check_env):
         return False
-    
+
     from google.colab import drive
     drive.mount("/content/drive")
 
@@ -64,11 +63,11 @@ def setup_colab_directories_for_kaggle(check_env=True, local_working=False):
     # It was requested not to map working to Drive, so create it locally.
     if local_working:
         (kaggle_dir / "working").mkdir()
-    
+
     print(f"Content of Kaggle data dir ({kaggle_dir}): {list(map(str, kaggle_dir.iterdir()))}")
     for content_dir in target_content_dirs + (["working"] if local_working else []):
         print(f"Content of Kaggle data subdir ({kaggle_dir / content_dir}): {list(map(str, (kaggle_dir / content_dir).iterdir()))}")
-    
+
     return True  # Is Colab
 
 

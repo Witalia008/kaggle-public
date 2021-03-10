@@ -11,6 +11,34 @@ def is_running_in_colab(check_env=True):
     return running_in_colab
 
 
+def setup_colab_drive_for_kaggle(check_env=True):
+    if not is_running_in_colab(check_env):
+        return False
+    
+    from google.colab import drive
+    drive.mount("/content/drive")
+
+    return True  # Is Colab
+
+
+def setup_colab_secrets_for_kaggle(check_env=True):
+    if not is_running_in_colab(check_env):
+        return False
+
+    drive_sources_dir = Path("/content/drive/MyDrive/Colab Notebooks/kaggle")
+
+    # Set up kaggle.json to access Kaggle data.
+    if (drive_sources_dir / "kaggle.json").exists():
+        kaggle_config = Path.home() / ".kaggle"
+        if kaggle_config.exists():
+            shutil.rmtree(kaggle_config)
+        kaggle_config.mkdir()
+        (kaggle_config / "kaggle.json").symlink_to(drive_sources_dir / "kaggle.json")
+        print(f"Content of Kaggle config dir ({kaggle_config}): {list(map(str, kaggle_config.iterdir()))}")
+
+    return True  # Is Colab
+
+
 def setup_colab_directories_for_kaggle(check_env=True, local_working=False):
     if not is_running_in_colab(check_env):
         return False
@@ -44,21 +72,12 @@ def setup_colab_directories_for_kaggle(check_env=True, local_working=False):
     return True  # Is Colab
 
 
-def setup_colab_drive_for_kaggle(check_env=True):
-    if not is_running_in_colab(check_env):
-        return False
-    
-    from google.colab import drive
-    drive.mount("/content/drive")
-
-    return True  # Is Colab
-
-
 def setup_colab_for_kaggle(check_env=True, local_working=False):
     if not is_running_in_colab(check_env):
         return False
 
     setup_colab_drive_for_kaggle(check_env=False)
     setup_colab_directories_for_kaggle(check_env=False, local_working=local_working)
+    setup_colab_secrets_for_kaggle(check_env=False)
 
     return True  # Is Colab

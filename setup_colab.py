@@ -15,6 +15,7 @@ def dump_dataset_metadata(user_name, dataset_name, folder_path):
             "licenses": [{ "name": "CC0-1.0" }]
         }, f, indent=4)
 
+
 def is_running_in_colab(check_env=True):
     if not check_env:
         return True

@@ -1,6 +1,19 @@
+import json
 from pathlib import Path
 import shutil
 
+INPUT_FOLDER = Path("/kaggle/input/")
+OUTPUT_FOLDER = Path("/kaggle/output/")
+WORK_FOLDER = Path("/kaggle/working/")
+
+
+def dump_dataset_metadata(user_name, dataset_name, folder_path):
+    with open(Path(folder_path) / "dataset-metadata.json", "w") as f:
+        json.dump({
+            "title": dataset_name,
+            "id": f"{user_name}/{dataset_name}",
+            "licenses": [{ "name": "CC0-1.0" }]
+        }, f, indent=4)
 
 def is_running_in_colab(check_env=True):
     if not check_env:

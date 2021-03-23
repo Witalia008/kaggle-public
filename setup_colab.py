@@ -1,10 +1,16 @@
 import json
 from pathlib import Path
 import shutil
+import subprocess
+import sys
 
 INPUT_FOLDER = Path("/kaggle/input/")
 OUTPUT_FOLDER = Path("/kaggle/output/")
 WORK_FOLDER = Path("/kaggle/working/")
+
+
+def install_package(package_name):
+    subprocess.check_call([sys.executable, "-m", "pip", "install", package_name])
 
 
 def dump_dataset_metadata(user_name, dataset_name, folder_path):
@@ -48,6 +54,13 @@ def setup_colab_secrets_for_kaggle(check_env=True):
         kaggle_config.mkdir()
         (kaggle_config / "kaggle.json").symlink_to(drive_sources_dir / "kaggle.json")
         print(f"Content of Kaggle config dir ({kaggle_config}): {list(map(str, kaggle_config.iterdir()))}")
+
+    if (drive_sources_dir / ".env").exists():
+        install_package("python-dotenv")
+        from dotenv import load_dotenv, dotenv_values
+        load_dotenv(dotenv_path=drive_sources_dir / ".env", verbose=True, override=True)
+        nonempty_keys = [key for key, val in dotenv_values(drive_sources_dir / '.env').items() if val]
+        print(f"Loaded environment variables from .env file: {nonempty_keys}.")
 
     return True  # Is Colab
 

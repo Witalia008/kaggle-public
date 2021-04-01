@@ -2,7 +2,7 @@
     "name": "Kaggle Dev CPU",
     "image": "gcr.io/kaggle-images/python", // Remember to pull latest before rebuilding.
     "mounts": [
-        "type=bind,source=${localWorkspaceFolder}/data/input,target=/kaggle/input,readonly",
+        "type=bind,source=${localWorkspaceFolder}/data/input,target=/kaggle/input",
         "type=bind,source=${localWorkspaceFolder}/data/results,target=/kaggle/results"
     ],
     "extensions": [
@@ -25,6 +25,7 @@
         "KAGGLE_MODE": "DEV"
     },
     "postCreateCommand": ".devcontainer/setup.sh",
+    "postAttachCommand": ".devcontainer/setup-mounted.sh",
     "devPort": 8888,
     "shutdownAction": "none"
 }

@@ -1,0 +1,29 @@
+Type,Label ID,Pathology,Definition
+Local,0,Aortic enlargement,An abnormal bulge that occurs in the wall of the major blood vessel.
+Local,1,Atelectasis,Collapse of a part of the lung due to a decrease in the amount of air in the alveoli resulting in volume loss and increased density.
+Local,3,Cardiomegaly,"Enlargement of the heart, occurs when the heart of an adult patient is larger than normal and the cardiothoracic ratio is greater than 0.5."
+Local,2,Calcification,Deposition of calcium salts in the lung.
+Local,,Clavicle fracture,A break in the collarbone.
+Local,4,Consolidation,"Any pathologic process that fills the alveoli with fluid, pus, blood, cells (including tumor cells) or other substances resulting in lobar, diffuse or multifocal ill-defined opacities."
+Local,,Edema,Fluid accumulation in the tissur and air space of the lungs.
+Local,,Emphysema,A condition of the lung characterized by an abnormal increase in the size of air spaces distal to the terminal bronchioles.
+Local,,Enlarged PA,Dilatation of the pulmonary artery - a defect characterized by a wider than normal main pulmonary artery.
+Local,5,Interstitial lung disease (ILD),Involvement of the supporting tissue of the lung parenchyma resulting in fine or coarse reticular opacities or small nodules.
+Local,6,Infiltration,"An abnormal substance that accumulates gradually within cells or body tissues or any substance or type of cell that occurs within or spreads as through the interstices (interstitium and/or alveoli) of the lung, that is foreign to the lung, or that accumulates in greater than normal quantity within it."
+Local,,Lung cavity,"Thick-walled abnormal gas-filled spaces within the lung. They are usually associated with a nodule, mass, or area of consolidation. A fluid level within the space may be present."
+Local,,Lung cyst,"Lung cysts refer to round, thin-walled, low attenuation spaces/lucencies in the lung."
+Local,7,Lung opacity,"Any abnormal focal or generalized opacity or opacities in lung fields (blanket tag including but not limited to consolidation, cavity, fibrosis, nodule, mass, calcification, interstitial thickening, etc.)."
+Local,,Mediastinal shift,The deviation of the mediastinal structures towards one side of the chest cavity.
+Local,8,Nodule/Mass,Any space occupying lesion either solitary or multiple.
+Local,13,Pulmonary fibrosis,An excess of fibrotic tissue in the lung.
+Local,12,Pneumothorax,The presence of gas (air) in the pleural space.
+Local,11,Pleural thickening,Any form of thickening involving either the parietal or visceral pleura.
+Local,10,Pleural effusion,Abnormal accumulations of fluid within the pleural space.
+Local,,Rib fracture,A common injury that occurs when one of the bones in your rib cage breaks or cracks.
+Local,9,Other lesion,Other lesions that are not on the list of findings or abnormalities mentioned above.
+Global,,Lung tumor,"The result of abnormal rates of cell division or cell death in lung tissue, or in the airways that lead to the lungs."
+Global,,Pneumonia,An infection that inflames the air sacs in one or both lungs.
+Global,,Tuberculosis,Any sign suggesting pulmonary or extrapulmonary tuberculosis.
+Global,,Other diseases,Other diseases that are not on the list of diseases mentioned above.
+Global,,COPD,Chronic obstructive pulmonary disease (COPD) is defined as a condition characterized by persistent airflow limitation that is usually progressive and associated with an enhanced chronic inflammatory response in the airways and the lung to noxious particles or gases.
+Global,14,No finding,The absence of all pathologies from the chest radiograph.
